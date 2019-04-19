@@ -4,6 +4,7 @@ import socket
 import os
 from os import walk, mkdir
 import sys
+import json
 
 BUFFER_SIZE = 1024
 
@@ -72,55 +73,11 @@ def send_request(command):
         #Create a project. on the server side, add the current user to the list 
         #of users in this project
     elif(args[0] == "PULL"):
-        print(command)
-        #PULL a file without modifying it (same as RETRIEVE probably)
         s.send(command.encode())
-        
-        receiving = True
-        root = ""
-        currentFile = ""
-        data = "".encode()
-        while receiving:
-            if ("end" in data.decode() and "txt" in data.decode()):
-                currentFile == data.decode().lstrip("end")
-            else:
-                data = s.recv(BUFFER_SIZE)
-            var = data.decode()
-            print(var)
-            if root in data.decode() and "file" in data.decode():
-                root = data.decode().lstrip("root:")
-                currentFile = data.decode().lstrip("file:")
-            if "root" in data.decode():
-                root = data.decode().lstrip("root:")
-                #make a directory IF IT DOES NOT EXIST
-                mkdir(root)
-                continue
-            if "file" in data.decode():
-                currentFile = data.decode().lstrip("file:")
-            elif "done" in data.decode():
-                receiving = False
-            actualFile = root if currentFile in root else root+currentFile
-            print(actualFile)
-            with open("./project1/1.txt", 'wb') as f:
-                print ('creating file')
-                while True:
-                    print('receiving data...')
-                    try:
-                        data = s.recv(BUFFER_SIZE)
-                    except socket.timeout:
-                        data = "end"
-                    if (data == "end" or "end" in data.decode()):
-                        f.close()
-                        print('Successfully got the file')
-                        break
-                    if (data.decode() == "requested file does not exist..."):
-                        print(data.decode())
-                        f.close()
-                        os.remove(actualFile)#TODO: question
-                        break
-                    # write data to a file
-                    f.write(data)
-            f.close()
+        data = s.recv(BUFFER_SIZE)
+        key = data.decode()
+        # test = json.loads(key)
+        print(key)
 
 
     elif(args[0] == "MODIFY"):

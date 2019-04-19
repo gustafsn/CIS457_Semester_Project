@@ -93,12 +93,14 @@ def threaded(connection):
 				print(Projects)
 				msg = "You have created " + projName
 				StoreProject()
+				projNameParam = "./" +projName + "/"
+				MakeFolder(projName)
 			connection.send(msg.encode())
 			#Create a project. on the server side, add the current user to the list 
 			#of users in this project
 		elif(incList[0] == "PULL"):
 			print(incStr)
-			#PULL a file without modifying it (same as RETRIEVE probably)
+			
 		elif(incList[0] == "MODIFY"):
 			print(incStr)
 			#When a user wants to "check out" a file 
@@ -163,6 +165,12 @@ def RetrieveProject():
 		Projects = json.load(json_file)
 	return Projects
 
+def MakeFolder(directory):
+	try:
+		if not os.path.exists(directory):
+			os.makedirs(directory)
+	except OSError:
+		print ('Error: Creating directory. ' +  directory)
 
 def StoreProject():
 	"""Retrieves the Projects JSON from a local file """
@@ -183,6 +191,7 @@ def Main():
 	Projects = RetrieveProject()
 	print(Projects)
 	host = "127.0.0.1" 
+	
 
 	# reverse a port on your computer 
 	# in our case it is 8080 but it 

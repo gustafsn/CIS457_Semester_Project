@@ -79,18 +79,29 @@ def send_request(command):
         receiving = True
         root = ""
         currentFile = ""
+        data = "".encode()
         while receiving:
-            data = s.recv(BUFFER_SIZE) 
+            if ("end" in data.decode() and "txt" in data.decode()):
+                currentFile == data.decode().lstrip("end")
+            else:
+                data = s.recv(BUFFER_SIZE)
+            var = data.decode()
+            print(var)
+            if root in data.decode() and "file" in data.decode():
+                root = data.decode().lstrip("root:")
+                currentFile = data.decode().lstrip("file:")
             if "root" in data.decode():
                 root = data.decode().lstrip("root:")
-                #make a directory
+                #make a directory IF IT DOES NOT EXIST
                 mkdir(root)
-            elif "file" in data.decode():
+                continue
+            if "file" in data.decode():
                 currentFile = data.decode().lstrip("file:")
             elif "done" in data.decode():
                 receiving = False
-            
-            with open(root+"/"+currentFile, 'wb') as f:
+            actualFile = root if currentFile in root else root+currentFile
+            print(actualFile)
+            with open("./project1/1.txt", 'wb') as f:
                 print ('creating file')
                 while True:
                     print('receiving data...')
@@ -105,7 +116,7 @@ def send_request(command):
                     if (data.decode() == "requested file does not exist..."):
                         print(data.decode())
                         f.close()
-                        os.remove(root+"/"+currentFile)#TODO: question
+                        os.remove(actualFile)#TODO: question
                         break
                     # write data to a file
                     f.write(data)

@@ -112,7 +112,7 @@ def threaded(connection):
 			if(currentUser in Projects[projectToPull]['users']):
 				for root,dir,files in walk("./"+projectToPull):
 					#send the dir root
-					msg = "root:"+root
+					msg = "root:"+root+"/"
 					connection.send(msg.encode())
 					for file in files:
 						#send the name of the file

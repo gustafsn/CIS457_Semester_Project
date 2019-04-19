@@ -15,8 +15,7 @@ BUFFER_SIZE = 1024
 # 	'proj1' : {
 # 		'users' : ['tim', 'tom', 'toom'],
 # 		'file1' : {
-# 			'isCheckedOut' : False,
-# 			'isModifying' : False,
+# 			'isCheckedOutBy' : False,
 # 			'version' : 1
 # 		}
 # 	}
@@ -43,7 +42,6 @@ def threaded(connection):
 		#split the data into a list
 		incStr = incMessage.decode()
 		incList= incStr.split(" ")
-
 		
 		#check which function is requested
 		if incList[0] == "LIST":
@@ -98,6 +96,9 @@ def threaded(connection):
 			#PULL a file without modifying it (same as RETRIEVE probably)
 		elif(incList[0] == "MODIFY"):
 			print(incStr)
+			filename = incList[1]
+			if filename in Projects[selectedProj]:
+				Projects[selectedProj][filename][]
 			#When a user wants to "check out" a file 
 		elif(incList[0] == "PUSH"):
 			print(incStr)

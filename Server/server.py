@@ -3,9 +3,10 @@ from _thread import *
 import threading 
 import os
 import sys
-from os import listdir
+from os import listdir, walk
 from os.path import isfile, join
 import json
+
 
 BUFFER_SIZE = 1024 
 # Projects store all of the projects as a json/dict with their files, users. 
@@ -107,26 +108,29 @@ def threaded(connection):
 			#Create a project. on the server side, add the current user to the list 
 			#of users in this project
 		elif(incList[0] == "PULL"):
-                        projectToPull = incList[1]
-                        if(currentUser in projectToPull['users']):
-                           ##start sending the files 
-                           for root,dir,files in walk("./"+projectToPull):
-                               #send the dir root 
-                               for file in files:
-                                   #send the nae of the file
-                                   try:
-			           	f = open(file, "rb")
-			           	l = f.read(BUFFER_SIZE)
-			           	while (l):
-			           		connection.send(l)
-			           		l = f.read(BUFFER_SIZE)
-			           	f.close()
-			           	print('sent file...')
-			           except IOError:
-			           	noFile = "requested file does not exist..."
-			           	print(noFile)
-			           	connection.send(noFile.encode())
-                                   #send a close file notification 
+			projectToPull = incList[1]
+			if(currentUser in Projects[projectToPull]['users']):
+				for root,dir,files in walk("./"+projectToPull):
+					#send the dir root
+					msg = "root:"+root
+					connection.send(msg.encode())
+					for file in files:
+						#send the name of the file
+						connection.send(str("file:"+file).encode())
+						try:
+							f = open(root+"/"+file, "rb")
+							l = f.read(BUFFER_SIZE)
+							while (l):
+								connection.send(l)
+								l = f.read(BUFFER_SIZE)
+							f.close()
+							print('sent file...')
+							connection.send("end".encode())
+						except IOError:
+							noFile = "requested file does not exist..."
+							print(noFile)
+							connection.send(noFile.encode())
+				connection.send("done".encode())
 
 			print(incStr)
 			

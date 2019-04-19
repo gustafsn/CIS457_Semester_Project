@@ -2,6 +2,7 @@
 
 import socket
 import os
+from os import walk, mkdir
 import sys
 
 BUFFER_SIZE = 1024
@@ -75,13 +76,15 @@ def send_request(command):
         #PULL a file without modifying it (same as RETRIEVE probably)
         s.send(command.encode())
         
-        receiving = true;
+        receiving = True
         root = ""
         currentFile = ""
         while receiving:
-           data = s.recv(BUFFER_SIZE) 
-           if "root" in data.decode():
-               root = data.decode().lstrip("root:")
+            data = s.recv(BUFFER_SIZE) 
+            if "root" in data.decode():
+                root = data.decode().lstrip("root:")
+                #make a directory
+                mkdir(root)
             elif "file" in data.decode():
                 currentFile = data.decode().lstrip("file:")
             elif "done" in data.decode():
@@ -95,14 +98,14 @@ def send_request(command):
                         data = s.recv(BUFFER_SIZE)
                     except socket.timeout:
                         data = "end"
-                    if (data == "end" || "end" in data.decode()):
+                    if (data == "end" or "end" in data.decode()):
                         f.close()
                         print('Successfully got the file')
                         break
                     if (data.decode() == "requested file does not exist..."):
                         print(data.decode())
                         f.close()
-                        os.remove(args[1])//TODO: question
+                        os.remove(root+"/"+currentFile)#TODO: question
                         break
                     # write data to a file
                     f.write(data)

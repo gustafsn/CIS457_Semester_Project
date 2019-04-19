@@ -107,6 +107,27 @@ def threaded(connection):
 			#Create a project. on the server side, add the current user to the list 
 			#of users in this project
 		elif(incList[0] == "PULL"):
+                        projectToPull = incList[1]
+                        if(currentUser in projectToPull['users']):
+                           ##start sending the files 
+                           for root,dir,files in walk("./"+projectToPull):
+                               #send the dir root 
+                               for file in files:
+                                   #send the nae of the file
+                                   try:
+			           	f = open(file, "rb")
+			           	l = f.read(BUFFER_SIZE)
+			           	while (l):
+			           		connection.send(l)
+			           		l = f.read(BUFFER_SIZE)
+			           	f.close()
+			           	print('sent file...')
+			           except IOError:
+			           	noFile = "requested file does not exist..."
+			           	print(noFile)
+			           	connection.send(noFile.encode())
+                                   #send a close file notification 
+
 			print(incStr)
 			
 		elif(incList[0] == "MODIFY"):

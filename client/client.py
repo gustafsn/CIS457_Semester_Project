@@ -73,6 +73,42 @@ def send_request(command):
     elif(args[0] == "PULL"):
         print(command)
         #PULL a file without modifying it (same as RETRIEVE probably)
+        s.send(command.encode())
+        
+        receiving = true;
+        root = ""
+        currentFile = ""
+        while receiving:
+           data = s.recv(BUFFER_SIZE) 
+           if "root" in data.decode():
+               root = data.decode().lstrip("root:")
+            elif "file" in data.decode():
+                currentFile = data.decode().lstrip("file:")
+            elif "done" in data.decode():
+                receiving = False
+            
+            with open(root+"/"+currentFile, 'wb') as f:
+                print ('creating file')
+                while True:
+                    print('receiving data...')
+                    try:
+                        data = s.recv(BUFFER_SIZE)
+                    except socket.timeout:
+                        data = "end"
+                    if (data == "end" || "end" in data.decode()):
+                        f.close()
+                        print('Successfully got the file')
+                        break
+                    if (data.decode() == "requested file does not exist..."):
+                        print(data.decode())
+                        f.close()
+                        os.remove(args[1])//TODO: question
+                        break
+                    # write data to a file
+                    f.write(data)
+            f.close()
+
+
     elif(args[0] == "MODIFY"):
         print(command)
         #When a user wants to "check out" a file 

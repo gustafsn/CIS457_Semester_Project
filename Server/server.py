@@ -111,7 +111,7 @@ def threaded(connection):
 			key = []
 			for root,dir,files in walk("./project1"):
 				key.append({root : files})
-			connection.send(str(key).encode())
+			connection.send(json.dumps(key).encode())
 		elif(incList[0] == "MODIFY"):
 			print(incStr)
 			#When a user wants to "check out" a file 
@@ -123,6 +123,7 @@ def threaded(connection):
 		elif incList[0] == "RETRIEVE":
 			print('command: RETRIEVE')
 			try:
+				print(incList[1])
 				f = open(incList[1], "rb")
 				l = f.read(BUFFER_SIZE)
 				while (l):
@@ -138,7 +139,7 @@ def threaded(connection):
 			print('command: STORE')
 			with open(incList[1], 'wb') as f:
 				print ('file opened')
-				connection.settimeout(2)
+				connection.settimeout(1)
 				#endlessly loops on .recv() if there is nothing in the socket, and you don't set a timeout. 
 				#changed back to None after this loop, so other commands don't break. Probably a better way to avoid this problem..
 				while True:

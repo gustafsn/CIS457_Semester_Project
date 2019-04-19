@@ -5,6 +5,7 @@ import os
 from os import walk, mkdir
 import sys
 import json
+import time
 
 BUFFER_SIZE = 1024
 
@@ -19,7 +20,7 @@ def connect_to_server(ip, port):
 
     try:
         s.connect((ip, port))
-        s.settimeout(2)
+        s.settimeout(1)
         isConnected = True
     except ConnectionRefusedError:
         print("failed to establish a connection with: ", ip, "on port : ", port) 
@@ -75,10 +76,18 @@ def send_request(command):
     elif(args[0] == "PULL"):
         s.send(command.encode())
         data = s.recv(BUFFER_SIZE)
-        key = data.decode()
+        key = json.loads(data.decode())
         # test = json.loads(key)
-        print(key)
-
+        for something in key:
+            for root, files in something.items():
+                mkdir(root)
+                for file in files:
+                    path = root+"/"+file
+                    # print("get"+file)
+                    command = "RETRIEVE "+path
+                    s.send(command.encode())
+                    time.sleep(.5)
+                    retr(path)
 
     elif(args[0] == "MODIFY"):
         print(command)
@@ -133,6 +142,28 @@ def send_request(command):
         print("RETRIEVE <filename>")
         print("STORE <filename>")
         print("QUIT - to close the client")
+
+def retr(file):
+        with open(file, 'wb') as f:
+            print ('file opened')
+            while True:
+                print('receiving data...')
+                try:
+                    data = s.recv(BUFFER_SIZE)
+                except socket.timeout:
+                    data = "end"
+                if (data == "end"):
+                    f.close()
+                    print('Successfully got the file')
+                    break
+                if (data.decode() == "requested file does not exist..."):
+                    print(data.decode())
+                    f.close()
+                    os.remove(file)
+                    break
+                # write data to a file
+                f.write(data)
+        f.close()
 
 def main():
     global s 

@@ -98,7 +98,14 @@ def threaded(connection):
 			print(incStr)
 			filename = incList[1]
 			if filename in Projects[selectedProj]:
-				Projects[selectedProj][filename][]
+				Projects[selectedProj][filename]['isCheckedOutBy'] = currentUser
+				StoreProject()
+				print(Projects)
+				msg = filename+" is now checked out by '"+currentUser+". Make sure you PULL and have the current version of the project."
+				connection.send(msg.encode())
+			else:
+				msg = "file not found in that project..."
+				connection.send(msg.encode())
 			#When a user wants to "check out" a file 
 		elif(incList[0] == "PUSH"):
 			print(incStr)

@@ -55,6 +55,7 @@ def send_request(command):
         print(command)
         s.send(command.encode())
         data = s.recv(BUFFER_SIZE)
+        print(data.decode())
         #Select a project. must be a user of the project
     elif(args[0] == "ADDUSER"):
         print(command)
@@ -70,6 +71,9 @@ def send_request(command):
         #PULL a file without modifying it (same as RETRIEVE probably)
     elif(args[0] == "MODIFY"):
         print(command)
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
+        print(data.decode())
         #When a user wants to "check out" a file 
     elif(args[0] == "PUSH"):
         print(command)

@@ -1,1 +1,1 @@
-{"proj1": {"users": ["tim", "tom", "toom"], "file1": {"isCheckedOut": false, "isModifying": false, "version": 1}},"project1" : {"users" : ["tim"]},"proj2": {"users": ["brendan"]}, "proj3": {"users": ["brendan"]}, "proj4": {"users": ["brendan"]}, "proj5": {"users": ["jeff"]}}
+{"project1": {"users": ["nolan", "brendan", "santiago", "tim"], "1.txt": {"isCheckedOutBy": "None"}, "2.txt": {"isCheckedOutBy": "None"}, "3.txt": {"isCheckedOutBy": "None"}, "4.txt": {"isCheckedOutBy": "None"}}}

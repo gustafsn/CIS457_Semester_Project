@@ -12,6 +12,7 @@ BUFFER_SIZE = 1024
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 isRunning = True
 isConnected = False
+global project
 
 
 def connect_to_server(ip, port):
@@ -29,6 +30,7 @@ def connect_to_server(ip, port):
 
 def send_request(command):
     global s
+    global project
     args = command.split(" ")
 
     if(command == "LIST"):
@@ -58,6 +60,8 @@ def send_request(command):
         print(command)
         s.send(command.encode())
         data = s.recv(BUFFER_SIZE)
+        if data.decode() == "You have checked out to that project":
+            project = args[1]
         print(data.decode())
         #Select a project. must be a user of the project
     elif(args[0] == "ADDUSER"):
@@ -80,7 +84,8 @@ def send_request(command):
         # test = json.loads(key)
         for something in key:
             for root, files in something.items():
-                mkdir(root)
+                if not os.path.isdir(root):
+                    mkdir(root)
                 for file in files:
                     path = root+"/"+file
                     # print("get"+file)
@@ -99,6 +104,25 @@ def send_request(command):
         print(command)
         #Returning a Checked out file. Only if the current user is the one who 
         #checked it out with "MODIFY"
+        s.send(command.encode())
+        #listen for response
+        response = s.recv(BUFFER_SIZE)
+        if response.decode() == "continue":
+            try:
+                f = open(project+"/"+args[1], "rb")
+                l = f.read(BUFFER_SIZE)
+                while (l):
+                    s.send(l)
+                    l = f.read(BUFFER_SIZE)
+                f.close()
+                print('sent file...')
+            except IOError:
+                noFile = "requested file does not exist..."
+                print(noFile)
+                #s.send(noFile.encode())
+        else:
+            print("You are not allowed to update that file")
+
     #NEW STUFF FOR SEMESTER PROJECT************************************************
     elif(args[0] == "RETRIEVE"):
         print('command: RETRIEVE')

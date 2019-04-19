@@ -68,7 +68,7 @@ def threaded(connection):
 			projUsers = Projects[desProj]['users']
 			if currentUser in projUsers:
 				selectedProj = desProj
-				msg = "You have checked out " + desProj
+				msg = "You have checked out to that project"
 				connection.send(msg.encode())
 			else:
 				msg = "You cannot check out a project you are not a user of."
@@ -80,6 +80,7 @@ def threaded(connection):
 			if (userName not in Projects[selectedProj]['users']):
 				Projects[selectedProj]['users'].append(userName)
 				msg = "the user has been added"
+				StoreProject()
 			else:
 				msg = "the user already exist as a contributing memeber"
 
@@ -114,11 +115,15 @@ def threaded(connection):
 			print(incStr)
 			filename = incList[1]
 			if filename in Projects[selectedProj]:
-				Projects[selectedProj][filename]['isCheckedOutBy'] = currentUser
-				StoreProject()
-				print(Projects)
-				msg = filename+" is now checked out by '"+currentUser+". Make sure you PULL and have the current version of the project."
-				connection.send(msg.encode())
+				if Projects[selectedProj][filename]['isCheckedOutBy'] == "None":
+					Projects[selectedProj][filename]['isCheckedOutBy'] = currentUser
+					StoreProject()
+					print(Projects)
+					msg = filename+" is now checked out by '"+currentUser+". Make sure you PULL and have the current version of the project."
+					connection.send(msg.encode())
+				else:
+					msg = "That file is already checked out by "+ Projects[selectedProj][filename]['isCheckedOutBy']
+					connection.send(msg.encode())
 			else:
 				msg = "file not found in that project..."
 				connection.send(msg.encode())
@@ -127,6 +132,66 @@ def threaded(connection):
 			print(incStr)
 			#Returning a Checked out file. Only if the current user is the one who 
 			#checked it out with "MODIFY"
+			filename = incList[1]
+			if filename in Projects[selectedProj]:
+				if currentUser in Projects[selectedProj]['users']:
+					connection.send("continue".encode())
+					with open(selectedProj+"/"+filename, 'wb') as f:
+						print ('file opened')
+						connection.settimeout(1)
+						#endlessly loops on .recv() if there is nothing in the socket, and you don't set a timeout. 
+						#changed back to None after this loop, so other commands don't break. Probably a better way to avoid this problem..
+						while True:
+							print('receiving data...')
+							try:
+								data = connection.recv(BUFFER_SIZE)
+							except socket.timeout:
+								data = "end"
+							if (data == "end"):
+								f.close()
+								print('Successfully got the file')
+								break
+							if (data.decode() == "requested file does not exist..."):
+								print(data.decode())
+								f.close()
+								break
+							# write data to a file
+							f.write(data)
+					f.close()
+					connection.settimeout(None)
+					Projects[selectedProj][filename]['isCheckedOutBy'] = "None"
+					StoreProject()
+				else:
+					connection.send("denied".encode())
+			else:
+				connection.send("continue".encode())
+				with open(incList[1], 'wb') as f:
+					print ('file opened')
+					connection.settimeout(1)
+					#endlessly loops on .recv() if there is nothing in the socket, and you don't set a timeout. 
+					#changed back to None after this loop, so other commands don't break. Probably a better way to avoid this problem..
+					while True:
+						print('receiving data...')
+						try:
+							data = connection.recv(BUFFER_SIZE)
+						except socket.timeout:
+							data = "end"
+						if (data == "end"):
+							f.close()
+							print('Successfully got the file')
+							break
+						if (data.decode() == "requested file does not exist..."):
+							print(data.decode())
+							f.close()
+							break
+						# write data to a file
+						f.write(data)
+				f.close()
+				connection.settimeout(None)
+				Projects[selectedProj].update({filename : {
+					'isCheckedOutBy' : "None",
+				}})
+				StoreProject()
 		# ******************************************************************************************
 		elif incList[0] == "RETRIEVE":
 			print('command: RETRIEVE')

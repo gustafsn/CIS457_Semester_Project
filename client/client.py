@@ -40,14 +40,29 @@ def send_request(command):
         s.send(command.encode())
         data = s.recv(BUFFER_SIZE)
         print(data.decode())
+    elif(args[0] == "LISTPROJ"):
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
+        files = data.decode().split(",")
+        print(*files, sep='\n')    
+        
+    elif args[0] == "LISTUSERS":
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
+        files = data.decode().split(",")
+        print(*files, sep='\n')    
     elif(args[0] == "CHECKOUT"):
         print(command)
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
         #Select a project. must be a user of the project
     elif(args[0] == "ADDUSER"):
         print(command)
         #Add a user to a project. Current user must be a part of the project already
     elif(args[0] == "CREATE"):
         print(command)
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
         #Create a project. on the server side, add the current user to the list 
         #of users in this project
     elif(args[0] == "PULL"):

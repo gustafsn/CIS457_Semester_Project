@@ -28,6 +28,7 @@ Projects = {}
 
 #The threaded function that will handle most of the parsing
 def threaded(connection): 
+	global Projects
 	currentUser = "" #the username for the client.py in this thread
 	selectedProj = "" #project the user wants to do stuff with
 	while True: 
@@ -54,14 +55,42 @@ def threaded(connection):
 			currentUser = incList[1]
 			response = currentUser+" successfully signed in."
 			connection.send(response.encode())
-		elif(incList[0] == "CHECKOUT"):
-			print(incStr)
+		elif incList[0] == "LISTPROJ":
+			projs = list(Projects.keys())
+			projsStr = ",".join(projs)
+			connection.send(projsStr.encode())
+		elif incList[0] == "LISTUSERS":
+			desProj = incList[1]
+			projUsers = Projects[desProj]['users']
+			usersStr = ",".join(projUsers)
+			connection.send(usersStr.encode())
+		elif incList[0] == "CHECKOUT":
+			desProj = incList[1]
+			projUsers = Projects[desProj]['users']
+			if currentUser in projUsers:
+				selectedProj = desProj
+				msg = "You have checked out " + desProj
+				connection.send(msg.encode())
+			else:
+				msg = "You cannot check out a project you are not a user of."
+				connection.send(msg.encode())
 			#Select a project. must be a user of the project. update 'selectedProj'
 		elif(incList[0] == "ADDUSER"):
 			print(incStr)
 			#Add a user to a project. Current user must be a part of the project already
 		elif(incList[0] == "CREATE"):
 			print(incStr)
+			projName = incList[1]
+			print(list(Projects.keys()))
+			print(projName)
+			if projName in list(Projects.keys()):
+				
+				msg = projName + " already exists."
+			else:
+				print("hello")
+				Projects[projName].append({'users' : [currentUser]})
+				msg = "You have created " + projName
+			connection.send(msg.encode())
 			#Create a project. on the server side, add the current user to the list 
 			#of users in this project
 		elif(incList[0] == "PULL"):
@@ -147,6 +176,7 @@ def List():
 
 def Main():
 	# StoreProject()
+	global Projects
 	Projects = RetrieveProject()
 	print(Projects)
 	host = "127.0.0.1" 

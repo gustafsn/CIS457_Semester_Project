@@ -16,8 +16,7 @@ BUFFER_SIZE = 1024
 # 	'proj1' : {
 # 		'users' : ['tim', 'tom', 'toom'],
 # 		'file1' : {
-# 			'isCheckedOut' : False,
-# 			'isModifying' : False,
+# 			'isCheckedOutBy' : False,
 # 			'version' : 1
 # 		}
 # 	}
@@ -44,7 +43,6 @@ def threaded(connection):
 		#split the data into a list
 		incStr = incMessage.decode()
 		incList= incStr.split(" ")
-
 		
 		#check which function is requested
 		if incList[0] == "LIST":
@@ -114,6 +112,16 @@ def threaded(connection):
 			connection.send(json.dumps(key).encode())
 		elif(incList[0] == "MODIFY"):
 			print(incStr)
+			filename = incList[1]
+			if filename in Projects[selectedProj]:
+				Projects[selectedProj][filename]['isCheckedOutBy'] = currentUser
+				StoreProject()
+				print(Projects)
+				msg = filename+" is now checked out by '"+currentUser+". Make sure you PULL and have the current version of the project."
+				connection.send(msg.encode())
+			else:
+				msg = "file not found in that project..."
+				connection.send(msg.encode())
 			#When a user wants to "check out" a file 
 		elif(incList[0] == "PUSH"):
 			print(incStr)

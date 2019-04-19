@@ -91,6 +91,9 @@ def send_request(command):
 
     elif(args[0] == "MODIFY"):
         print(command)
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
+        print(data.decode())
         #When a user wants to "check out" a file 
     elif(args[0] == "PUSH"):
         print(command)

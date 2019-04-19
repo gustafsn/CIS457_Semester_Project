@@ -77,6 +77,11 @@ def threaded(connection):
 			#Select a project. must be a user of the project. update 'selectedProj'
 		elif(incList[0] == "ADDUSER"):
 			print(incStr)
+                        userName = incList[1]
+                        if (userName not in Projects[selectedProj]['users']):
+                            Projects[selectedProj]['users'].append(userName)
+                        else:
+                            print("the user already exist ass a contributing memeber")
 			#Add a user to a project. Current user must be a part of the project already
 		elif(incList[0] == "CREATE"):
 			print(incStr)

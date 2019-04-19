@@ -63,6 +63,7 @@ def send_request(command):
         print(command)
         s.send(command.encode())
         data = s.recv(BUFFER_SIZE)
+        print(data.decode())
         #Create a project. on the server side, add the current user to the list 
         #of users in this project
     elif(args[0] == "PULL"):

@@ -88,8 +88,11 @@ def threaded(connection):
 				msg = projName + " already exists."
 			else:
 				print("hello")
-				Projects[projName].append({'users' : [currentUser]})
+				Projects[projName] = {'users' : [currentUser]}
+				print("PLEASE")
+				print(Projects)
 				msg = "You have created " + projName
+				StoreProject()
 			connection.send(msg.encode())
 			#Create a project. on the server side, add the current user to the list 
 			#of users in this project

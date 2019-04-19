@@ -55,9 +55,13 @@ def send_request(command):
         print(command)
         s.send(command.encode())
         data = s.recv(BUFFER_SIZE)
+        print(data.decode())
         #Select a project. must be a user of the project
     elif(args[0] == "ADDUSER"):
         print(command)
+        s.send(command.encode())
+        data = s.recv(BUFFER_SIZE)
+        print(data.decode())
         #Add a user to a project. Current user must be a part of the project already
     elif(args[0] == "CREATE"):
         print(command)

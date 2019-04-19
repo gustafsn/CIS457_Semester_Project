@@ -77,11 +77,14 @@ def threaded(connection):
 			#Select a project. must be a user of the project. update 'selectedProj'
 		elif(incList[0] == "ADDUSER"):
 			print(incStr)
-                        userName = incList[1]
-                        if (userName not in Projects[selectedProj]['users']):
-                            Projects[selectedProj]['users'].append(userName)
-                        else:
-                            print("the user already exist ass a contributing memeber")
+			userName = incList[1]
+			if (userName not in Projects[selectedProj]['users']):
+				Projects[selectedProj]['users'].append(userName)
+				msg = "the user has been added"
+			else:
+				msg = "the user already exist as a contributing memeber"
+
+			connection.send(msg.encode())
 			#Add a user to a project. Current user must be a part of the project already
 		elif(incList[0] == "CREATE"):
 			print(incStr)
@@ -196,7 +199,7 @@ def Main():
 	Projects = RetrieveProject()
 	print(Projects)
 	host = "127.0.0.1" 
-	
+
 
 	# reverse a port on your computer 
 	# in our case it is 8080 but it 
